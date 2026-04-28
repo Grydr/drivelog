@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "792037934496",
+    "project_id": "drivelog-f31ae",
+    "storage_bucket": "drivelog-f31ae.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:792037934496:android:8a5e204a44434039d490c5",
+        "android_client_info": {
+          "package_name": "com.example.drivelog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJntZqkvmFBobVE51A26F47B7GDTf3Hmo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
