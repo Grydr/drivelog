@@ -7,13 +7,41 @@ import '../models/trip.dart';
 import '../widgets/trip_card.dart';
 import 'trip_detail_screen.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
+
+  @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  String? _historyUserId;
+  Stream<List<Trip>>? _historyTripsStream;
+
+  void _syncHistoryTripsStream(String userId, TripProvider tripProvider) {
+    if (_historyUserId == userId) {
+      return;
+    }
+
+    _historyUserId = userId;
+    _historyTripsStream = userId.isEmpty
+        ? null
+        : tripProvider.getUserTripsStream(userId);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final authProvider = context.read<AuthProvider>();
+    final tripProvider = context.read<TripProvider>();
+    final userId = authProvider.currentUser?.uid ?? '';
+    _syncHistoryTripsStream(userId, tripProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
-    final tripProvider = context.watch<TripProvider>();
     final userId = authProvider.currentUser?.uid ?? '';
 
     return Scaffold(
@@ -31,8 +59,17 @@ class HistoryScreen extends StatelessWidget {
         ),
       ),
       body: StreamBuilder<List<Trip>>(
-        stream: tripProvider.getUserTripsStream(userId),
+        stream: _historyTripsStream,
         builder: (context, snapshot) {
+          if (userId.isEmpty) {
+            return const Center(
+              child: Text(
+                'Please log in to view your history',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+            );
+          }
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(color: AppColors.primary),

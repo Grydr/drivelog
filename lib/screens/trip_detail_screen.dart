@@ -5,7 +5,7 @@ import '../services/trip_provider.dart';
 import '../models/trip.dart';
 import 'package:intl/intl.dart';
 
-class TripDetailScreen extends StatelessWidget {
+class TripDetailScreen extends StatefulWidget {
   final String tripId;
 
   const TripDetailScreen({
@@ -14,9 +14,28 @@ class TripDetailScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final tripProvider = context.watch<TripProvider>();
+  State<TripDetailScreen> createState() => _TripDetailScreenState();
+}
 
+class _TripDetailScreenState extends State<TripDetailScreen> {
+  late Future<Trip?> _tripFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _tripFuture = context.read<TripProvider>().getTrip(widget.tripId);
+  }
+
+  @override
+  void didUpdateWidget(covariant TripDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.tripId != widget.tripId) {
+      _tripFuture = context.read<TripProvider>().getTrip(widget.tripId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -36,7 +55,7 @@ class TripDetailScreen extends StatelessWidget {
         ),
       ),
       body: FutureBuilder<Trip?>(
-        future: tripProvider.getTrip(tripId),
+        future: _tripFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
