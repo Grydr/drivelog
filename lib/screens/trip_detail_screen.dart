@@ -164,36 +164,6 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 14),
-                // Share button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Share trip
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Share functionality coming soon'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    child: const Text(
-                      'Share this trip',
-                      style: TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           );

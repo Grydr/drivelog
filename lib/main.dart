@@ -6,6 +6,7 @@ import 'theme/app_theme.dart';
 import 'theme/app_colors.dart';
 import 'services/auth_provider.dart';
 import 'services/trip_provider.dart';
+import 'services/trip_notification_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/stats_screen.dart';
@@ -17,6 +18,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await TripNotificationService.instance.initialize();
   runApp(const MyApp());
 }
 

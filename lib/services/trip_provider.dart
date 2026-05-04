@@ -3,10 +3,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import '../models/trip.dart';
+import '../services/trip_notification_service.dart';
 import '../services/trip_service.dart';
 
 class TripProvider extends ChangeNotifier {
   final TripService _tripService = TripService();
+  final TripNotificationService _tripNotificationService = TripNotificationService.instance;
   final Random _random = Random();
 
   final List<Trip> _recentTrips = [];
@@ -61,13 +63,23 @@ class TripProvider extends ChangeNotifier {
     _distanceKm = 0;
     _topSpeedKmh = 0;
     _elapsedSeconds = 0;
+    _tripNotificationService.setStopTripHandler(() => stopTrip(userId));
     notifyListeners();
 
     _tripTimer?.cancel();
     _tripTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       _advanceTripState();
+      _tripNotificationService.showActiveTripNotification(
+        currentSpeedKmh: _currentSpeedKmh,
+        durationLabel: elapsedLabel,
+      );
       notifyListeners();
     });
+
+    await _tripNotificationService.showActiveTripNotification(
+      currentSpeedKmh: _currentSpeedKmh,
+      durationLabel: elapsedLabel,
+    );
   }
 
   Future<Trip?> stopTrip(String userId) async {
@@ -78,6 +90,7 @@ class TripProvider extends ChangeNotifier {
     _tripTimer?.cancel();
     _tripTimer = null;
     _isTripActive = false;
+    _tripNotificationService.setStopTripHandler(null);
 
     final trip = Trip(
       id: '',
@@ -99,6 +112,7 @@ class TripProvider extends ChangeNotifier {
     try {
       final tripId = await _tripService.createTrip(trip);
       _resetTripState();
+      await _tripNotificationService.cancelActiveTripNotification();
       _isLoading = false;
       notifyListeners();
       return Trip(
@@ -116,6 +130,7 @@ class TripProvider extends ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
+      await _tripNotificationService.cancelActiveTripNotification();
       notifyListeners();
       rethrow;
     }
@@ -234,6 +249,7 @@ class TripProvider extends ChangeNotifier {
   @override
   void dispose() {
     _tripTimer?.cancel();
+    _tripNotificationService.cancelActiveTripNotification();
     super.dispose();
   }
 }
