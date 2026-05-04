@@ -8,12 +8,12 @@ class LiveCard extends StatefulWidget {
   final double maxSpeed;
 
   const LiveCard({
-    Key? key,
+    super.key,
     required this.currentSpeed,
     required this.distance,
     required this.duration,
     required this.maxSpeed,
-  }) : super(key: key);
+  });
 
   @override
   State<LiveCard> createState() => _LiveCardState();
@@ -62,7 +62,7 @@ class _LiveCardState extends State<LiveCard> {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                '${widget.currentSpeed.toStringAsFixed(0)}',
+                widget.currentSpeed.toStringAsFixed(0),
                 style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 52,
@@ -95,7 +95,7 @@ class _LiveCardState extends State<LiveCard> {
                   child: Column(
                     children: [
                       Text(
-                        '${widget.distance.toStringAsFixed(1)}',
+                        widget.distance.toStringAsFixed(1),
                         style: const TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 14,
@@ -155,7 +155,7 @@ class _LiveCardState extends State<LiveCard> {
                   child: Column(
                     children: [
                       Text(
-                        '${widget.maxSpeed.toStringAsFixed(0)}',
+                        widget.maxSpeed.toStringAsFixed(0),
                         style: const TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 14,

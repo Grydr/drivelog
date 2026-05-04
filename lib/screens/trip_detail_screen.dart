@@ -9,9 +9,9 @@ class TripDetailScreen extends StatelessWidget {
   final String tripId;
 
   const TripDetailScreen({
-    Key? key,
+    super.key,
     required this.tripId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +83,7 @@ class TripDetailScreen extends StatelessWidget {
                         textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text(
-                            '${trip.distanceKm.toStringAsFixed(1)}',
+                            trip.distanceKm.toStringAsFixed(1),
                             style: const TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 38,
@@ -124,7 +124,7 @@ class TripDetailScreen extends StatelessWidget {
                   children: [
                     _buildStatBox(
                       'max speed (km/h)',
-                      '${trip.maxSpeedKmh.toStringAsFixed(0)}',
+                      trip.maxSpeedKmh.toStringAsFixed(0),
                       isAccent: true,
                     ),
                     _buildStatBox(

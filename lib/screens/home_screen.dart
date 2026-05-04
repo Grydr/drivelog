@@ -16,11 +16,56 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Future<void> _handleStartTrip(
+    TripProvider tripProvider,
+    String userId,
+    ScaffoldMessengerState messenger,
+  ) async {
+    try {
+      await tripProvider.startTrip(userId);
+      if (tripProvider.error != null) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(tripProvider.error!),
+          ),
+        );
+        tripProvider.clearError();
+      }
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  }
+
+  Future<void> _handleStopTrip(
+    TripProvider tripProvider,
+    String userId,
+    ScaffoldMessengerState messenger,
+  ) async {
+    try {
+      await tripProvider.stopTrip(userId);
+      if (tripProvider.error != null) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(tripProvider.error!),
+          ),
+        );
+        tripProvider.clearError();
+      }
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final tripProvider = context.watch<TripProvider>();
     final userId = authProvider.currentUser?.uid ?? '';
+    final messenger = ScaffoldMessenger.of(context);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -57,10 +102,10 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // Live tracking card
             LiveCard(
-              currentSpeed: 78,
-              distance: 12.4,
-              duration: 1112, // 18:32 in seconds
-              maxSpeed: 95,
+              currentSpeed: tripProvider.currentSpeedKmh,
+              distance: tripProvider.distanceKm,
+              duration: tripProvider.elapsedSeconds,
+              maxSpeed: tripProvider.maxSpeedKmh,
             ),
             // Start/Stop buttons
             Padding(
@@ -69,18 +114,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Start trip
-                      },
+                      onPressed: tripProvider.isTripActive
+                          ? null
+                          : () => _handleStartTrip(tripProvider, userId, messenger),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
+                        disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.35),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
-                        'Start trip',
+                      child: Text(
+                        tripProvider.isTripActive ? 'Trip active' : 'Start trip',
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 15,
@@ -92,14 +138,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () {
-                        // Stop trip
-                      },
+                      onPressed: tripProvider.isTripActive
+                          ? () => _handleStopTrip(tripProvider, userId, messenger)
+                          : null,
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(
                           color: AppColors.border,
                           width: 0.5,
                         ),
+                        disabledForegroundColor: AppColors.textSecondary.withValues(alpha: 0.35),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),

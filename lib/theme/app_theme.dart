@@ -14,7 +14,6 @@ class AppTheme {
       colorScheme: ColorScheme.dark(
         primary: AppColors.primary,
         surface: AppColors.surface,
-        background: AppColors.background,
         brightness: Brightness.dark,
       ),
       textTheme: const TextTheme(
