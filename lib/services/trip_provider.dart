@@ -15,9 +15,8 @@ class TripProvider extends ChangeNotifier {
   bool _isTripActive = false;
   double _currentSpeedKmh = 0;
   double _distanceKm = 0;
-  double _maxSpeedKmh = 0;
+  double _topSpeedKmh = 0;
   int _elapsedSeconds = 0;
-  int _hardBrakes = 0;
   DateTime? _tripStartedAt;
   Timer? _tripTimer;
 
@@ -27,7 +26,7 @@ class TripProvider extends ChangeNotifier {
   bool get isTripActive => _isTripActive;
   double get currentSpeedKmh => _currentSpeedKmh;
   double get distanceKm => _distanceKm;
-  double get maxSpeedKmh => _maxSpeedKmh;
+  double get topSpeedKmh => _topSpeedKmh;
   int get elapsedSeconds => _elapsedSeconds;
 
   String get elapsedLabel {
@@ -60,9 +59,8 @@ class TripProvider extends ChangeNotifier {
     _tripStartedAt = DateTime.now();
     _currentSpeedKmh = 0;
     _distanceKm = 0;
-    _maxSpeedKmh = 0;
+    _topSpeedKmh = 0;
     _elapsedSeconds = 0;
-    _hardBrakes = 0;
     notifyListeners();
 
     _tripTimer?.cancel();
@@ -85,12 +83,11 @@ class TripProvider extends ChangeNotifier {
       id: '',
       userId: userId,
       date: _tripStartedAt ?? DateTime.now(),
+      speedKmh: _currentSpeedKmh,
+      avgSpeedKmh: _elapsedSeconds == 0 ? 0 : (_distanceKm / (_elapsedSeconds / 3600)),
+      topSpeedKmh: _topSpeedKmh,
       distanceKm: _distanceKm,
       durationMinutes: _elapsedSeconds == 0 ? 0 : (_elapsedSeconds / 60).ceil(),
-      maxSpeedKmh: _maxSpeedKmh,
-      avgSpeedKmh: _elapsedSeconds == 0 ? 0 : (_distanceKm / (_elapsedSeconds / 3600)),
-      hardBrakes: _hardBrakes,
-      driveScore: _buildDriveScore(),
       createdAt: DateTime.now(),
     );
 
@@ -107,12 +104,11 @@ class TripProvider extends ChangeNotifier {
         id: tripId,
         userId: trip.userId,
         date: trip.date,
+        speedKmh: trip.speedKmh,
+        avgSpeedKmh: trip.avgSpeedKmh,
+        topSpeedKmh: trip.topSpeedKmh,
         distanceKm: trip.distanceKm,
         durationMinutes: trip.durationMinutes,
-        maxSpeedKmh: trip.maxSpeedKmh,
-        avgSpeedKmh: trip.avgSpeedKmh,
-        hardBrakes: trip.hardBrakes,
-        driveScore: trip.driveScore,
         createdAt: trip.createdAt,
       );
     } catch (e) {
@@ -131,35 +127,19 @@ class TripProvider extends ChangeNotifier {
     _elapsedSeconds += 1;
 
     final delta = (_random.nextDouble() * 18) - 8;
-    final previousSpeed = _currentSpeedKmh;
     _currentSpeedKmh = (_currentSpeedKmh + delta).clamp(0, 130).toDouble();
 
-    if (previousSpeed - _currentSpeedKmh >= 18) {
-      _hardBrakes += 1;
-    }
-
     _distanceKm += _currentSpeedKmh / 3600;
-    if (_currentSpeedKmh > _maxSpeedKmh) {
-      _maxSpeedKmh = _currentSpeedKmh;
+    if (_currentSpeedKmh > _topSpeedKmh) {
+      _topSpeedKmh = _currentSpeedKmh;
     }
-  }
-
-  String _buildDriveScore() {
-    if (_hardBrakes <= 1 && _maxSpeedKmh < 95) {
-      return 'A';
-    }
-    if (_hardBrakes <= 3 && _maxSpeedKmh < 110) {
-      return 'B';
-    }
-    return 'C';
   }
 
   void _resetTripState() {
     _currentSpeedKmh = 0;
     _distanceKm = 0;
-    _maxSpeedKmh = 0;
+    _topSpeedKmh = 0;
     _elapsedSeconds = 0;
-    _hardBrakes = 0;
     _tripStartedAt = null;
   }
 

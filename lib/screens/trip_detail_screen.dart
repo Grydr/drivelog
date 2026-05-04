@@ -104,7 +104,7 @@ class TripDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${trip.durationMinutes} min · Avg ${trip.avgSpeedKmh.toStringAsFixed(0)} km/h',
+                        'Avg ${trip.avgSpeedKmh.toStringAsFixed(0)} km/h · ${trip.durationMinutes} min',
                         style: const TextStyle(
                           color: Color(0xFF8899CC),
                           fontSize: 13,
@@ -123,24 +123,24 @@ class TripDetailScreen extends StatelessWidget {
                   mainAxisSpacing: 10,
                   children: [
                     _buildStatBox(
-                      'max speed (km/h)',
-                      trip.maxSpeedKmh.toStringAsFixed(0),
+                      'average speed (km/h)',
+                      trip.avgSpeedKmh.toStringAsFixed(0),
                       isAccent: true,
+                      accentColor: AppColors.primary,
                     ),
                     _buildStatBox(
-                      'drive score',
-                      trip.driveScore,
+                      'top speed (km/h)',
+                      trip.topSpeedKmh.toStringAsFixed(0),
                       isAccent: true,
                       accentColor: AppColors.scoreA,
                     ),
                     _buildStatBox(
-                      'total time',
-                      '${(trip.durationMinutes ~/ 60).toString().padLeft(2, '0')}:${(trip.durationMinutes % 60).toString().padLeft(2, '0')}',
+                      'distance (km)',
+                      trip.distanceKm.toStringAsFixed(1),
                     ),
                     _buildStatBox(
-                      'hard brakes',
-                      '${trip.hardBrakes}',
-                      accentColor: AppColors.warning,
+                      'duration (min)',
+                      '${trip.durationMinutes}',
                     ),
                   ],
                 ),

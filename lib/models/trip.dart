@@ -4,24 +4,22 @@ class Trip {
   final String id;
   final String userId;
   final DateTime date;
+  final double speedKmh;
+  final double avgSpeedKmh;
+  final double topSpeedKmh;
   final double distanceKm;
   final int durationMinutes;
-  final double maxSpeedKmh;
-  final double avgSpeedKmh;
-  final int hardBrakes;
-  final String driveScore; // A, B, C, etc.
   final DateTime createdAt;
 
   Trip({
     required this.id,
     required this.userId,
     required this.date,
+    required this.speedKmh,
+    required this.avgSpeedKmh,
+    required this.topSpeedKmh,
     required this.distanceKm,
     required this.durationMinutes,
-    required this.maxSpeedKmh,
-    required this.avgSpeedKmh,
-    required this.hardBrakes,
-    required this.driveScore,
     required this.createdAt,
   });
 
@@ -31,12 +29,11 @@ class Trip {
       id: doc.id,
       userId: data['userId'] ?? '',
       date: (data['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      speedKmh: (data['speedKmh'] as num?)?.toDouble() ?? 0.0,
+      avgSpeedKmh: (data['avgSpeedKmh'] as num?)?.toDouble() ?? 0.0,
+      topSpeedKmh: (data['topSpeedKmh'] as num?)?.toDouble() ?? 0.0,
       distanceKm: (data['distanceKm'] as num?)?.toDouble() ?? 0.0,
       durationMinutes: data['durationMinutes'] ?? 0,
-      maxSpeedKmh: (data['maxSpeedKmh'] as num?)?.toDouble() ?? 0.0,
-      avgSpeedKmh: (data['avgSpeedKmh'] as num?)?.toDouble() ?? 0.0,
-      hardBrakes: data['hardBrakes'] ?? 0,
-      driveScore: data['driveScore'] ?? 'N/A',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
@@ -45,12 +42,11 @@ class Trip {
     return {
       'userId': userId,
       'date': Timestamp.fromDate(date),
+      'speedKmh': speedKmh,
+      'avgSpeedKmh': avgSpeedKmh,
+      'topSpeedKmh': topSpeedKmh,
       'distanceKm': distanceKm,
       'durationMinutes': durationMinutes,
-      'maxSpeedKmh': maxSpeedKmh,
-      'avgSpeedKmh': avgSpeedKmh,
-      'hardBrakes': hardBrakes,
-      'driveScore': driveScore,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }

@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
               currentSpeed: tripProvider.currentSpeedKmh,
               distance: tripProvider.distanceKm,
               duration: tripProvider.elapsedSeconds,
-              maxSpeed: tripProvider.maxSpeedKmh,
+              maxSpeed: tripProvider.topSpeedKmh,
             ),
             // Start/Stop buttons
             Padding(
@@ -231,26 +231,29 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
 
                 return Column(
-                  children: trips
-                      .map(
-                        (trip) => TripCard(
-                          title: trip.driveScore,
-                          subtitle:
-                              '${trip.date.month}/${trip.date.day} · ${trip.distanceKm.toStringAsFixed(1)} km · ${trip.durationMinutes} min',
-                          score: 'Score ${trip.driveScore}',
-                          maxSpeed: trip.maxSpeedKmh,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    TripDetailScreen(tripId: trip.id),
-                              ),
-                            );
-                          },
-                        ),
-                      )
-                      .toList(),
+                  children: List.generate(
+                    trips.length,
+                    (index) {
+                      final trip = trips[index];
+                      return TripCard(
+                        tripNumber: index + 1,
+                        subtitle:
+                            '${trip.date.month}/${trip.date.day} · ${trip.distanceKm.toStringAsFixed(1)} km · ${trip.durationMinutes} min',
+                        averageSpeed:
+                            'Avg ${trip.avgSpeedKmh.toStringAsFixed(0)} km/h',
+                        topSpeed: trip.topSpeedKmh,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  TripDetailScreen(tripId: trip.id),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 );
               },
             ),

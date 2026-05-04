@@ -65,11 +65,11 @@ class HistoryScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final trip = trips[index];
               return TripCard(
-                title: trip.driveScore,
+                tripNumber: index + 1,
                 subtitle:
                     '${trip.date.month}/${trip.date.day} · ${trip.distanceKm.toStringAsFixed(1)} km · ${trip.durationMinutes} min',
-                score: 'Score ${trip.driveScore}',
-                maxSpeed: trip.maxSpeedKmh,
+                averageSpeed: 'Avg ${trip.avgSpeedKmh.toStringAsFixed(0)} km/h',
+                topSpeed: trip.topSpeedKmh,
                 onTap: () {
                   Navigator.push(
                     context,

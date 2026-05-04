@@ -164,7 +164,7 @@ class _LiveCardState extends State<LiveCard> {
                       ),
                       const SizedBox(height: 2),
                       const Text(
-                        'max km/h',
+                        'top km/h',
                         style: TextStyle(
                           color: AppColors.textTertiary,
                           fontSize: 10,

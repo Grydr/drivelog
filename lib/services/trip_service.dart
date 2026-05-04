@@ -94,20 +94,20 @@ class TripService {
           'totalTrips': 0,
           'totalDuration': 0,
           'averageSpeed': 0.0,
-          'maxSpeed': 0.0,
+          'topSpeed': 0.0,
         };
       }
 
       double totalDistance = 0;
       int totalDuration = 0;
-      double maxSpeed = 0;
+      double topSpeed = 0;
 
       for (var doc in snapshot.docs) {
         final trip = Trip.fromFirestore(doc);
         totalDistance += trip.distanceKm;
         totalDuration += trip.durationMinutes;
-        if (trip.maxSpeedKmh > maxSpeed) {
-          maxSpeed = trip.maxSpeedKmh;
+        if (trip.topSpeedKmh > topSpeed) {
+          topSpeed = trip.topSpeedKmh;
         }
       }
 
@@ -115,8 +115,8 @@ class TripService {
         'totalDistance': totalDistance,
         'totalTrips': snapshot.docs.length,
         'totalDuration': totalDuration,
-        'averageSpeed': totalDistance / (totalDuration / 60),
-        'maxSpeed': maxSpeed,
+        'averageSpeed': totalDuration == 0 ? 0.0 : totalDistance / (totalDuration / 60),
+        'topSpeed': topSpeed,
       };
     } catch (e) {
       print('Error getting user stats: $e');
