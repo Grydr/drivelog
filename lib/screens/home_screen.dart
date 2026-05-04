@@ -236,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     (index) {
                       final trip = trips[index];
                       return TripCard(
-                        tripNumber: index + 1,
+                        tripNumber: trip.tripNumber,
                         subtitle:
                             '${trip.date.month}/${trip.date.day} · ${trip.distanceKm.toStringAsFixed(1)} km · ${trip.durationMinutes} min',
                         averageSpeed:

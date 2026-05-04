@@ -45,6 +45,7 @@ dependencies:
 
   # Additional utilities
   intl: ^0.20.0
+  fl_chart: ^0.68.0
 
 dev_dependencies:
   flutter_test:

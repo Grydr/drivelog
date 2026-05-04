@@ -9,6 +9,7 @@ class Trip {
   final double topSpeedKmh;
   final double distanceKm;
   final int durationMinutes;
+  final int tripNumber;
   final DateTime createdAt;
 
   Trip({
@@ -20,6 +21,7 @@ class Trip {
     required this.topSpeedKmh,
     required this.distanceKm,
     required this.durationMinutes,
+    required this.tripNumber,
     required this.createdAt,
   });
 
@@ -34,6 +36,7 @@ class Trip {
       topSpeedKmh: (data['topSpeedKmh'] as num?)?.toDouble() ?? 0.0,
       distanceKm: (data['distanceKm'] as num?)?.toDouble() ?? 0.0,
       durationMinutes: data['durationMinutes'] ?? 0,
+      tripNumber: data['tripNumber'] ?? 0,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
@@ -47,6 +50,7 @@ class Trip {
       'topSpeedKmh': topSpeedKmh,
       'distanceKm': distanceKm,
       'durationMinutes': durationMinutes,
+      'tripNumber': tripNumber,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }

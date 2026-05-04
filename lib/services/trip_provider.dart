@@ -214,6 +214,16 @@ class TripProvider extends ChangeNotifier {
     }
   }
 
+  Future<List<dynamic>> get7DayStats(String userId) async {
+    try {
+      return await _tripService.get7DayStats(userId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   void clearError() {
     _error = null;
     notifyListeners();
