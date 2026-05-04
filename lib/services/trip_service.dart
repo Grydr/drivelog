@@ -14,9 +14,9 @@ class TripService {
           .where('userId', isEqualTo: trip.userId)
           .count()
           .get();
-      
+
       final tripNumber = snapshot.count! + 1;
-      
+
       // Create a new Trip with the calculated tripNumber
       final tripWithNumber = Trip(
         id: trip.id,
@@ -30,7 +30,7 @@ class TripService {
         tripNumber: tripNumber,
         createdAt: trip.createdAt,
       );
-      
+
       final docRef = await _firestore.collection('trips').add(tripWithNumber.toMap());
       return docRef.id;
     } catch (e) {

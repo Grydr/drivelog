@@ -16,6 +16,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String? _recentTripsUserId;
+  Stream<List<Trip>>? _recentTripsStream;
+
   Future<void> _handleStartTrip(
     TripProvider tripProvider,
     String userId,
@@ -58,6 +61,27 @@ class _HomeScreenState extends State<HomeScreen> {
         SnackBar(content: Text(e.toString())),
       );
     }
+  }
+
+  void _syncRecentTripsStream(String userId, TripProvider tripProvider) {
+    if (_recentTripsUserId == userId) {
+      return;
+    }
+
+    _recentTripsUserId = userId;
+    _recentTripsStream = userId.isEmpty
+        ? null
+        : tripProvider.getRecentTripsStream(userId, limit: 5);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final authProvider = context.read<AuthProvider>();
+    final tripProvider = context.read<TripProvider>();
+    final userId = authProvider.currentUser?.uid ?? '';
+    _syncRecentTripsStream(userId, tripProvider);
   }
 
   @override
@@ -198,8 +222,18 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 8),
             // Recent trips list
             StreamBuilder<List<Trip>>(
-              stream: tripProvider.getRecentTripsStream(userId, limit: 5),
+              stream: _recentTripsStream,
               builder: (context, snapshot) {
+                if (userId.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: const Text(
+                      'Please log in to see your recent trips.',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                  );
+                }
+
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator(

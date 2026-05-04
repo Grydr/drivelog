@@ -88,6 +88,7 @@ class TripProvider extends ChangeNotifier {
       topSpeedKmh: _topSpeedKmh,
       distanceKm: _distanceKm,
       durationMinutes: _elapsedSeconds == 0 ? 0 : (_elapsedSeconds / 60).ceil(),
+      tripNumber: 0, // Will be calculated by TripService.createTrip()
       createdAt: DateTime.now(),
     );
 
@@ -109,6 +110,7 @@ class TripProvider extends ChangeNotifier {
         topSpeedKmh: trip.topSpeedKmh,
         distanceKm: trip.distanceKm,
         durationMinutes: trip.durationMinutes,
+        tripNumber: 0, // Placeholder; fetch from Firestore for accurate number
         createdAt: trip.createdAt,
       );
     } catch (e) {
