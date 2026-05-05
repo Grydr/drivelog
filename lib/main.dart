@@ -15,9 +15,7 @@ import 'screens/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await TripNotificationService.instance.initialize();
   runApp(const MyApp());
 }
@@ -36,9 +34,7 @@ class MyApp extends StatelessWidget {
         title: 'DriveLog',
         theme: AppTheme.darkTheme,
         home: const AuthWrapper(),
-        routes: {
-          '/login': (context) => const LoginScreen(),
-        },
+        routes: {'/login': (context) => const LoginScreen()},
       ),
     );
   }
@@ -95,14 +91,14 @@ class _MainAppScreenState extends State<MainAppScreen> {
         type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(
-              _selectedIndex == 0 ? Icons.home : Icons.home_outlined,
-            ),
+            icon: Icon(_selectedIndex == 0 ? Icons.home : Icons.home_outlined),
             label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              _selectedIndex == 1 ? Icons.trending_up : Icons.trending_up_outlined,
+              _selectedIndex == 1
+                  ? Icons.trending_up
+                  : Icons.trending_up_outlined,
             ),
             label: 'Stats',
           ),

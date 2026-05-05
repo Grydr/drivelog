@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../models/trip.dart';
 import '../services/trip_notification_service.dart';
 import '../services/trip_service.dart';
@@ -9,7 +9,6 @@ import '../services/trip_service.dart';
 class TripProvider extends ChangeNotifier {
   final TripService _tripService = TripService();
   final TripNotificationService _tripNotificationService = TripNotificationService.instance;
-  final Random _random = Random();
 
   final List<Trip> _recentTrips = [];
   bool _isLoading = false;
@@ -21,6 +20,8 @@ class TripProvider extends ChangeNotifier {
   int _elapsedSeconds = 0;
   DateTime? _tripStartedAt;
   Timer? _tripTimer;
+  StreamSubscription<Position>? _positionSubscription;
+  Position? _lastPosition;
 
   List<Trip> get recentTrips => _recentTrips;
   bool get isLoading => _isLoading;
@@ -57,29 +58,51 @@ class TripProvider extends ChangeNotifier {
     }
 
     _error = null;
+    final locationReady = await _ensureLocationReady();
+    if (!locationReady) {
+      return;
+    }
+
     _isTripActive = true;
     _tripStartedAt = DateTime.now();
     _currentSpeedKmh = 0;
     _distanceKm = 0;
     _topSpeedKmh = 0;
     _elapsedSeconds = 0;
+    _lastPosition = null;
     _tripNotificationService.setStopTripHandler(() => stopTrip(userId));
     notifyListeners();
-
-    _tripTimer?.cancel();
-    _tripTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      _advanceTripState();
-      _tripNotificationService.showActiveTripNotification(
-        currentSpeedKmh: _currentSpeedKmh,
-        durationLabel: elapsedLabel,
-      );
-      notifyListeners();
-    });
 
     await _tripNotificationService.showActiveTripNotification(
       currentSpeedKmh: _currentSpeedKmh,
       durationLabel: elapsedLabel,
     );
+
+    _positionSubscription?.cancel();
+    _positionSubscription = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 0,
+      ),
+    ).listen(
+      _handlePositionUpdate,
+      onError: (Object e) {
+        _error = e.toString();
+        notifyListeners();
+      },
+    );
+
+    _tripTimer?.cancel();
+    _tripTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _elapsedSeconds += 1;
+      unawaited(
+        _tripNotificationService.showActiveTripNotification(
+        currentSpeedKmh: _currentSpeedKmh,
+        durationLabel: elapsedLabel,
+        ),
+      );
+      notifyListeners();
+    });
   }
 
   Future<Trip?> stopTrip(String userId) async {
@@ -89,6 +112,8 @@ class TripProvider extends ChangeNotifier {
 
     _tripTimer?.cancel();
     _tripTimer = null;
+    await _positionSubscription?.cancel();
+    _positionSubscription = null;
     _isTripActive = false;
     _tripNotificationService.setStopTripHandler(null);
 
@@ -136,20 +161,62 @@ class TripProvider extends ChangeNotifier {
     }
   }
 
-  void _advanceTripState() {
+  Future<bool> _ensureLocationReady() async {
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      _error = 'Location services are disabled. Please enable GPS to start a trip.';
+      notifyListeners();
+      return false;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.denied) {
+      _error = 'Location permission is required to track trips.';
+      notifyListeners();
+      return false;
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      _error = 'Location permission is permanently denied. Enable it in system settings.';
+      notifyListeners();
+      return false;
+    }
+
+    return true;
+  }
+
+  void _handlePositionUpdate(Position position) {
     if (!_isTripActive) {
       return;
     }
 
-    _elapsedSeconds += 1;
+    final currentSpeed = position.speed.isFinite && position.speed > 0
+        ? position.speed * 3.6
+        : 0.0;
 
-    final delta = (_random.nextDouble() * 18) - 8;
-    _currentSpeedKmh = (_currentSpeedKmh + delta).clamp(0, 130).toDouble();
+    if (_lastPosition != null) {
+      final distanceMeters = Geolocator.distanceBetween(
+        _lastPosition!.latitude,
+        _lastPosition!.longitude,
+        position.latitude,
+        position.longitude,
+      );
+      if (distanceMeters.isFinite && distanceMeters > 0) {
+        _distanceKm += distanceMeters / 1000;
+      }
+    }
 
-    _distanceKm += _currentSpeedKmh / 3600;
+    _lastPosition = position;
+    _currentSpeedKmh = currentSpeed;
     if (_currentSpeedKmh > _topSpeedKmh) {
       _topSpeedKmh = _currentSpeedKmh;
     }
+
+    notifyListeners();
   }
 
   void _resetTripState() {
@@ -249,6 +316,7 @@ class TripProvider extends ChangeNotifier {
   @override
   void dispose() {
     _tripTimer?.cancel();
+    _positionSubscription?.cancel();
     _tripNotificationService.cancelActiveTripNotification();
     super.dispose();
   }
