@@ -27,17 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       await tripProvider.startTrip(userId);
       if (tripProvider.error != null) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(tripProvider.error!),
-          ),
-        );
+        messenger.showSnackBar(SnackBar(content: Text(tripProvider.error!)));
         tripProvider.clearError();
       }
     } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
@@ -49,17 +43,11 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       await tripProvider.stopTrip(userId);
       if (tripProvider.error != null) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(tripProvider.error!),
-          ),
-        );
+        messenger.showSnackBar(SnackBar(content: Text(tripProvider.error!)));
         tripProvider.clearError();
       }
     } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
@@ -131,62 +119,34 @@ class _HomeScreenState extends State<HomeScreen> {
               duration: tripProvider.elapsedSeconds,
               maxSpeed: tripProvider.topSpeedKmh,
             ),
-            // Start/Stop buttons
+            // Start/Stop toggle button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: tripProvider.isTripActive
-                          ? null
-                          : () => _handleStartTrip(tripProvider, userId, messenger),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.35),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: Text(
-                        tripProvider.isTripActive ? 'Trip active' : 'Start trip',
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+              child: Padding(
+                padding: EdgeInsetsGeometry.all(8.0),
+                child: ElevatedButton(
+                  onPressed: tripProvider.isTripActive
+                      ? () => _handleStopTrip(tripProvider, userId, messenger)
+                      : () => _handleStartTrip(tripProvider, userId, messenger),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: tripProvider.isTripActive
+                        ? AppColors.scoreA
+                        : AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    minimumSize: Size.fromHeight(49),
+                  ),
+                  child: Text(
+                    tripProvider.isTripActive ? 'Stop trip' : 'Start trip',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: tripProvider.isTripActive
-                          ? () => _handleStopTrip(tripProvider, userId, messenger)
-                          : null,
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
-                          color: AppColors.border,
-                          width: 0.5,
-                        ),
-                        disabledForegroundColor: AppColors.textSecondary.withValues(alpha: 0.35),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text(
-                        'Stop',
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -210,10 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     child: const Text(
                       'See all',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: AppColors.primary, fontSize: 12),
                     ),
                   ),
                 ],
@@ -236,9 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primary,
-                    ),
+                    child: CircularProgressIndicator(color: AppColors.primary),
                   );
                 }
 
@@ -265,29 +220,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
 
                 return Column(
-                  children: List.generate(
-                    trips.length,
-                    (index) {
-                      final trip = trips[index];
-                      return TripCard(
-                        tripNumber: trip.tripNumber,
-                        subtitle:
-                            '${trip.date.month}/${trip.date.day} · ${trip.distanceKm.toStringAsFixed(1)} km · ${trip.durationMinutes} min',
-                        averageSpeed:
-                            'Avg ${trip.avgSpeedKmh.toStringAsFixed(0)} km/h',
-                        topSpeed: trip.topSpeedKmh,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  TripDetailScreen(tripId: trip.id),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
+                  children: List.generate(trips.length, (index) {
+                    final trip = trips[index];
+                    return TripCard(
+                      tripNumber: trip.tripNumber,
+                      subtitle:
+                          '${trip.date.month}/${trip.date.day} · ${trip.distanceKm.toStringAsFixed(1)} km · ${trip.durationMinutes} min',
+                      averageSpeed:
+                          'Avg ${trip.avgSpeedKmh.toStringAsFixed(0)} km/h',
+                      topSpeed: trip.topSpeedKmh,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                TripDetailScreen(tripId: trip.id),
+                          ),
+                        );
+                      },
+                    );
+                  }),
                 );
               },
             ),
