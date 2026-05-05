@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import '../models/trip.dart';
 import '../services/trip_notification_service.dart';
@@ -80,13 +80,21 @@ class TripProvider extends ChangeNotifier {
     );
 
     _positionSubscription?.cancel();
+    final locationSettings = switch (defaultTargetPlatform) {
+      TargetPlatform.iOS || TargetPlatform.macOS => AppleSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 0,
+        pauseLocationUpdatesAutomatically: false,
+        activityType: ActivityType.fitness,
+      ),
+      _ => AndroidSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 0,
+        intervalDuration: const Duration(seconds: 1),
+      ),
+    };
     _positionSubscription =
-        Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.bestForNavigation,
-            distanceFilter: 0,
-          ),
-        ).listen(
+        Geolocator.getPositionStream(locationSettings: locationSettings).listen(
           _handlePositionUpdate,
           onError: (Object e) {
             _error = e.toString();
@@ -200,8 +208,8 @@ class TripProvider extends ChangeNotifier {
       return;
     }
 
-    print("Speed: ${position.speed}");
-    print("Pos: ${position.toString()}");
+    debugPrint("Speed: ${position.speed}");
+    debugPrint("Pos: ${position.toString()}");
 
     double distanceMeters = 0;
     if (_lastPosition != null) {

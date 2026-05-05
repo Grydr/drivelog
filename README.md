@@ -2,6 +2,8 @@
 
 A modern Flutter application for tracking driving trips with real-time statistics and drive scoring.
 
+#### [Demo Video](https://youtu.be/In-ZqKtu3zU)
+
 ## Project Structure
 
 ```
@@ -33,12 +35,12 @@ lib/
 
 ## Features
 
-- 🔐 Firebase Authentication (Email/Password)
-- 📍 Real-time trip tracking
-- 📊 Drive statistics and scoring
-- 💾 Firestore database for trip storage
-- 🎨 Modern dark theme UI
-- 📱 Bottom navigation for easy access
+- Firebase Authentication (Email/Password)
+- Real-time trip tracking
+- Drive statistics and scoring
+- Firestore database for trip storage
+- Modern dark theme UI
+- Bottom navigation for easy access
 
 ## Setup Instructions
 
@@ -94,8 +96,6 @@ trips/
     - durationMinutes: number
     - maxSpeedKmh: number
     - avgSpeedKmh: number
-    - hardBrakes: number
-    - driveScore: string (A, B, C, etc.)
     - createdAt: timestamp
 ```
 
@@ -115,14 +115,3 @@ The app uses a dark theme with custom colors:
 - Success: `#4ADE80` (Green)
 - Warning: `#FACC15` (Yellow)
 - Error: `#F87171` (Red)
-
-## Next Steps
-
-- [ ] Implement GPS tracking for real-time location
-- [ ] Add map view for trip routes
-- [ ] Implement drive scoring algorithm
-- [ ] Add photo sharing for trips
-- [ ] Implement push notifications
-- [ ] Add trip filtering and search
-- [ ] Create detailed analytics dashboard
-
