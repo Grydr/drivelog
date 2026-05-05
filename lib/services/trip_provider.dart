@@ -8,7 +8,8 @@ import '../services/trip_service.dart';
 
 class TripProvider extends ChangeNotifier {
   final TripService _tripService = TripService();
-  final TripNotificationService _tripNotificationService = TripNotificationService.instance;
+  final TripNotificationService _tripNotificationService =
+      TripNotificationService.instance;
 
   final List<Trip> _recentTrips = [];
   bool _isLoading = false;
@@ -79,26 +80,27 @@ class TripProvider extends ChangeNotifier {
     );
 
     _positionSubscription?.cancel();
-    _positionSubscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.bestForNavigation,
-        distanceFilter: 0,
-      ),
-    ).listen(
-      _handlePositionUpdate,
-      onError: (Object e) {
-        _error = e.toString();
-        notifyListeners();
-      },
-    );
+    _positionSubscription =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.bestForNavigation,
+            distanceFilter: 0,
+          ),
+        ).listen(
+          _handlePositionUpdate,
+          onError: (Object e) {
+            _error = e.toString();
+            notifyListeners();
+          },
+        );
 
     _tripTimer?.cancel();
     _tripTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       _elapsedSeconds += 1;
       unawaited(
         _tripNotificationService.showActiveTripNotification(
-        currentSpeedKmh: _currentSpeedKmh,
-        durationLabel: elapsedLabel,
+          currentSpeedKmh: _currentSpeedKmh,
+          durationLabel: elapsedLabel,
         ),
       );
       notifyListeners();
@@ -122,7 +124,9 @@ class TripProvider extends ChangeNotifier {
       userId: userId,
       date: _tripStartedAt ?? DateTime.now(),
       speedKmh: _currentSpeedKmh,
-      avgSpeedKmh: _elapsedSeconds == 0 ? 0 : (_distanceKm / (_elapsedSeconds / 3600)),
+      avgSpeedKmh: _elapsedSeconds == 0
+          ? 0
+          : (_distanceKm / (_elapsedSeconds / 3600)),
       topSpeedKmh: _topSpeedKmh,
       distanceKm: _distanceKm,
       durationMinutes: _elapsedSeconds == 0 ? 0 : (_elapsedSeconds / 60).ceil(),
@@ -164,7 +168,8 @@ class TripProvider extends ChangeNotifier {
   Future<bool> _ensureLocationReady() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      _error = 'Location services are disabled. Please enable GPS to start a trip.';
+      _error =
+          'Location services are disabled. Please enable GPS to start a trip.';
       notifyListeners();
       return false;
     }
@@ -181,7 +186,8 @@ class TripProvider extends ChangeNotifier {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      _error = 'Location permission is permanently denied. Enable it in system settings.';
+      _error =
+          'Location permission is permanently denied. Enable it in system settings.';
       notifyListeners();
       return false;
     }
@@ -194,21 +200,26 @@ class TripProvider extends ChangeNotifier {
       return;
     }
 
-    final currentSpeed = position.speed.isFinite && position.speed > 0
-        ? position.speed * 3.6
-        : 0.0;
+    print("Speed: ${position.speed}");
+    print("Pos: ${position.toString()}");
 
+    double distanceMeters = 0;
     if (_lastPosition != null) {
-      final distanceMeters = Geolocator.distanceBetween(
+      distanceMeters = Geolocator.distanceBetween(
         _lastPosition!.latitude,
         _lastPosition!.longitude,
         position.latitude,
         position.longitude,
       );
-      if (distanceMeters.isFinite && distanceMeters > 0) {
+      if (distanceMeters.isFinite && distanceMeters > 1) {
         _distanceKm += distanceMeters / 1000;
       }
     }
+
+    const minSpeedMs = 0.28;
+    final currentSpeed = position.speed.isFinite && position.speed > minSpeedMs
+        ? position.speed * 3.6
+        : 0.0;
 
     _lastPosition = position;
     _currentSpeedKmh = currentSpeed;
@@ -225,6 +236,7 @@ class TripProvider extends ChangeNotifier {
     _topSpeedKmh = 0;
     _elapsedSeconds = 0;
     _tripStartedAt = null;
+    _lastPosition = null;
   }
 
   Future<void> createTrip(Trip trip) async {
